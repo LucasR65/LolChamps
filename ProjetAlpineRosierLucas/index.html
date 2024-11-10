@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="./css/style.css" />
+        <script src="https://unpkg.com/alpinejs" defer></script>
+        <title>Champions de LoL</title>
+    </head>
+
+    <body>
+
+        <div class="container" x-data="championsData()">
+
+            <select x-model="selectChamp" @change="updateChamp()">
+                <template x-for="champion in champions" :key="champion.id">
+                    <option :value="champion.id" x-text="champion.name"></option>
+                </template>
+            </select>
+            
+        
+            <div x-show="champion">
+                <h1 x-text="champion.name"></h1>
+                <h2 x-text="champion.title"></h2>
+                <img :src="champion.icon" alt="Champion Icon"/>
+                <div class="tags">
+                    <strong>Tags:</strong> 
+                    <template x-for="tag in champion.tags" :key="tag"> <!--Images ne chargent pas sur la connection de l'Efrei-->
+                        <span x-text="tag"></span>
+                    </template>
+                </div>
+            
+                <div>
+                    <h3>Selected Stats:</h3>
+                    <select x-model="selectStat">
+                        <option value="hp">HP</option>
+                        <option value="hpperlevel">HP per level</option>
+                        <option value="mp">Mana</option>
+                        <option value="mpperlevel">Mana per level</option>
+                        <option value="movespeed">Move Speed</option>
+                        <option value="armor">Armor</option>
+                        <option value="armorperlevel">Armor per level</option>
+                        <option value="spellblock">Magic Resist</option>
+                        <option value="spellblockperlevel">Magic Resist per level</option>
+                        <option value="attackrange">Attack Range</option>
+                        <option value="hpregen">HP Regen</option>
+                        <option value="hpregenperlevel">HP Regen per level</option>
+                        <option value="mpregen">Mana Regen</option>
+                        <option value="mpregenperlevel">Mana Regen per level</option>
+                        <option value="crit">Critical Strike Chance</option>
+                        <option value="critperlevel">Critical Strike Chance per level</option>
+                        <option value="attackdamage">Attack Damage</option>
+                        <option value="attackdamageperlevel">Attack Damage per level</option>
+                        <option value="attackspeedperlevel">Attack Speed per level</option>
+                        <option value="attackspeed">Attack Speed</option>
+                    </select>
+                    <button @click="addStat()">Add Stat</button>
+                    <ul>
+                        <template x-for="stat in displayStats" :key="stat">
+                            <li class="stats">
+                                <strong x-text="statLabels[stat]"></strong>: 
+                                <span x-text="champion.stats[stat]"></span>
+                            </li>
+                        </template>
+                        <li class="description"><strong>Description:</strong> <span x-text="champion.description"></span></li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    
+        <script>
+            function championsData() {
+                return {
+                    champions: [],
+                    champion: {},
+                    selectChamp: null,
+                    selectStat: 'hp',
+                    displayStats: [],
+
+                    statLabels: {
+                        hp: 'HP',
+                        hpperlevel: 'HP per level',
+                        mp: 'Mana',
+                        mpperlevel: 'Mana per level',
+                        movespeed: 'Move Speed',
+                        armor: 'Armor',
+                        armorperlevel: 'Armor per level',
+                        spellblock: 'Magic Resist',
+                        spellblockperlevel: 'Magic Resist per level',
+                        attackrange: 'Attack Range',
+                        hpregen: 'HP Regen',
+                        hpregenperlevel: 'HP Regen per level',
+                        mpregen: 'Mana Regen',
+                        mpregenperlevel: 'Mana Regen per level',
+                        crit: 'Critical Strike Chance',
+                        critperlevel: 'Critical Strike Chance per level',
+                        attackdamage: 'Attack Damage',
+                        attackdamageperlevel: 'Attack Damage per level',
+                        attackspeedperlevel: 'Attack Speed per level',
+                        attackspeed: 'Attack Speed'
+                    },
+
+                    async fetchChampions() {
+                        const response = await fetch('champions.json');
+                        this.champions = await response.json();
+                        this.selectChamp = this.champions[0].id; 
+                        this.updateChamp();
+                    },
+                
+                    updateChamp() {
+                        this.champion = this.champions.find(champ => champ.id === this.selectChamp);
+                        this.displayStats = [];  
+                    },
+                    
+                    addStat() {
+                        if (!this.displayStats.includes(this.selectStat)) {
+                            this.displayStats.push(this.selectStat);
+                        }
+                    },
+                
+                    init() {
+                        this.fetchChampions(); 
+                    }
+                }
+            }
+        </script> 
+    </body>
+</html>
